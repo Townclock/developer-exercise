@@ -1,5 +1,12 @@
 class Exercise
 
+  @@marklar_regex = /(?:(?<=\w)[\W]+(?=\w)|[\w]){5,}/
+      # find a substring that is constructed out of (non-word characters sandwiched between word characters) or (word characters) and match if its at least 5 characters long
+
+  def self.get_marklar_regex()
+    return @@marklar_regex
+  end
+
   # Assume that "str" is a sequence of words separated by spaces.
   # Return a string in which every word in "str" that exceeds 4 characters is replaced with "marklar".
   # If the word being replaced has a capital first letter, it should instead be replaced with "Marklar".
@@ -9,13 +16,11 @@ class Exercise
     leads_with_space = /^\s$/.match?(str[0])                      # note if there was any leading whitespace
     
     target_array = Array.new      
-
     
-    regex = /^.{5,}$/ 
-    # /.*[\w'-]{5,}.*/     if string characters count does not include punctuation.
+    regex = @@marklar_regex
+    
       
     source_array.each { |word| target_array.push(self.wordReplace(word, self.regExTest(regex, word), 'marklar'))}
-    
     return self.weave_marklar_space(target_array, whitespace_array, leads_with_space).join();
     
   end
@@ -29,26 +34,20 @@ class Exercise
   def self.weave_marklar_space(target_array, whitespace_array, leads_with_space)
     woven_array = Array.new
     if leads_with_space 
-      while target_array.length + whitespace_array.length > 0   do 
-        pick = whitespace_array.shift()
-        if pick != nil 
-          woven_array.push(pick)
-        end
-        pick = target_array.shift()
-        if pick != nil 
-          woven_array.push(pick)
-        end
-      end
+      lead_array = whitespace_array
+      follow_array = target_array
     else
-      while target_array.length + whitespace_array.length > 0 do
-        pick = target_array.shift()
-        if pick != nil 
-          woven_array.push(pick) 
-        end   
-        pick = whitespace_array.shift()
-        if pick != nil 
+      lead_array = target_array
+      follow_array = whitespace_array
+    end
+    while lead_array.length + follow_array.length > 0 do
+      pick = lead_array.shift()
+      if pick != nil 
+       woven_array.push(pick) 
+      end   
+      pick = follow_array.shift()
+      if pick != nil 
         woven_array.push(pick)
-        end
       end
     end
    return woven_array
@@ -59,7 +58,11 @@ class Exercise
   # three unspecified edge cases are hyphenated words, 's possessive forms, and contractions: extra-fun,  freds', and don't.  
   def self.wordReplace(word, condition, replacement)
     if condition 
-      partition = word.partition(/(?:\w\p{P}*\w|[\w'-])*/) 
+      
+      partition = word.partition(/(?:(?<=\w)[\W]+(?=\w)|[\w])+/) 
+      # find a substring that is constructed out of (non-word characters sandwiched between word characters) or (word characters)
+      
+      
       if /[A-Z].*/.match?(partition[1])                 # if the character portion is capitalized
         partition[1] = replacement.capitalize!          # replace with capitalized word
         return partition.join();

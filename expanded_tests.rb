@@ -49,12 +49,18 @@ describe Exercise do
     end
     
     it "should replace punctuation in the middle of worlds" do
-      _(Exercise.wordReplace("tab's", true, "wyoming")).must_equal "wyoming"
-      _(Exercise.wordReplace("a-b", true, "wyoming")).must_equal "wyoming"
-      _(Exercise.wordReplace("w!out", true, "wyoming")).must_equal "wyoming"
+      _(Exercise.wordReplace("was'nt", true, "wyoming")).must_equal "wyoming"
+      _(Exercise.wordReplace("early-bird", true, "wyoming")).must_equal "wyoming"
+      _(Exercise.wordReplace("with/out", true, "wyoming")).must_equal "wyoming"
       _(Exercise.wordReplace("w!'-out", true, "wyoming")).must_equal "wyoming"
     end
 
+    it "should keep quotations marks" do
+      _(Exercise.wordReplace("'tabs'", true, "wyoming")).must_equal "'wyoming'"
+    end
+    it "should keep quotations marks" do
+      _(Exercise.wordReplace('"tabs"', true, "wyoming")).must_equal '"wyoming"'
+    end
   end
 
 
@@ -80,7 +86,7 @@ describe Exercise do
   describe "#RegEx function  " do
   
     SETUP = begin
-      RegEx = /[^\w]*[\w'-]{5,}[^\w]*/
+      RegEx =  Exercise.get_marklar_regex()
     end
 
     it "should not match any word 4 leters or smaller" do
@@ -95,7 +101,7 @@ describe Exercise do
     end
     
     it " ' and - that appear within a word and are surrounded count as a character for that word" do
-      _(Exercise.regExTest(RegEx, "tab's")).must_equal true
+      _(Exercise.regExTest(RegEx, "tab'le")).must_equal true
       _(Exercise.regExTest(RegEx, "all-nite")).must_equal true
       _(Exercise.regExTest(RegEx, "all-hollows-night")).must_equal true
       _(Exercise.regExTest(RegEx, "Mith'ran'de'al")).must_equal true
